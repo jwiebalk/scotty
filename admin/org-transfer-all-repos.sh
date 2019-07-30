@@ -56,7 +56,7 @@ execute << EOF
             }
             GitHub.context.push(actor_id: staff_user.id);
             source_org.repositories.each {|repo|
-                if repo.method(:async_transfer_ownership_to).parameters != [[:req, :user], [:keyreq, :actor], [:key, :target_teams]];
+                if repo.method(:async_transfer_ownership_to).parameters != [[:req, :user], [:keyreq, :actor], [:key, :target_teams], [:key, :notify_target]];
                     raise \"Error: 'Repository#async_transfer_ownership_to' signature changed. GitHub Enterprise version is not compatible!\"
                 end;
                 teams = repo.teams.map { |t| {
@@ -71,7 +71,7 @@ execute << EOF
                 repo.async_transfer_ownership_to(target_org, actor: staff_user, target_teams: []);
                 target_repo = nil;
                 loop do
-                    target_repo = Repository.find_by_name_with_owner(\"#{target_org.login}/#{repo.name}\");
+                    target_repo = Repository.with_name_with_owner(\"#{target_org.login}/#{repo.name}\");
                     break if target_repo;
                     sleep(1);
                 end;
